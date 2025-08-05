@@ -1,0 +1,20 @@
+@font-face {
+    font-family: "ContentGrid";
+    src:
+        url("./ContentGrid.woff2") format("woff2"),
+        url("./ContentGrid.woff") format("woff");
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
+.fcg {
+    display: inline-block;
+    font: normal normal normal 14px/1 ContentGrid;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+.fcg-contentgrid::before {
+    content: "A";
+}

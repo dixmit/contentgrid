@@ -1,0 +1,4 @@
+.modal.modal-fullscreen {
+    --modal-zindex: 1054;
+    z-index: var(--modal-zindex) !important;
+}

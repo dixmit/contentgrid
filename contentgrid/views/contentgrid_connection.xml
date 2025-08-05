@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2025 Dixmit
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record model="ir.ui.view" id="contentgrid_connection_form_view">
+        <field name="model">contentgrid.connection</field>
+        <field name="arch" type="xml">
+            <form>
+                <header />
+                <sheet>
+                    <group>
+                        <field name="name" />
+                        <field name="openid_url" />
+                        <field name="openid_client_id" />
+                        <field name="openid_client_secret" password="True" />
+                        <field name="username" />
+                        <field name="password" password="True" />
+                        <field name="base_url" />
+                        <field name="app_url" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="contentgrid_connection_search_view">
+        <field name="model">contentgrid.connection</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+            </search>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="contentgrid_connection_tree_view">
+        <field name="model">contentgrid.connection</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+            </list>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="contentgrid_connection_act_window">
+        <field name="name">Connection</field>
+        <field name="res_model">contentgrid.connection</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record model="ir.ui.menu" id="contentgrid_connection_menu">
+        <field name="name">Connection</field>
+        <field name="parent_id" ref="contentgrid_menu_root" />
+        <field name="action" ref="contentgrid_connection_act_window" />
+        <field name="sequence" eval="16" />
+    </record>
+</odoo>

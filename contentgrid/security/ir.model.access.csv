@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_contentgrid_configuration,access.contentgrid.configuration,model_contentgrid_configuration,base.group_user,1,0,0,0
+manage_contentgrid_configuration,manage.contentgrid.configuration,model_contentgrid_configuration,base.group_system,1,1,1,1
+access_contentgrid_connection,access.contentgrid.connection,model_contentgrid_connection,base.group_user,1,0,0,0
+manage_contentgrid_connection,manage.contentgrid.connection,model_contentgrid_connection,base.group_system,1,1,1,1
+manage_contentgrid_record,manage.contentgrid.record,model_contentgrid_record,base.group_system,1,1,1,0

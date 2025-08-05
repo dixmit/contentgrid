@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <t t-inherit="web.FileViewer" t-inherit-mode="extension">
+        <xpath
+            expr="//div[hasclass('o-FileViewer-header')]//div[hasclass('o-FileViewer-download')]"
+            position="after"
+        >
+            <div
+                class="o-FileViewer-contentGrid o-FileViewer-headerButton d-flex align-items-center px-3 cursor-pointer"
+                role="button"
+                title="ContentGrid"
+                t-on-click.stop="onClickContentGrid"
+                t-if="state.file.contentgrid"
+            >
+                <i class="fcg fcg-contentgrid me-1" role="img" />
+                <span>ContentGrid</span>
+            </div>
+        </xpath>
+        <xpath
+            expr="//div[@role='toolbar']//div[hasclass('o-FileViewer-download')]"
+            position="after"
+        >
+            <div
+                class="o-FileViewer-contentGrid o-FileViewer-toolbarButton p-3 rounded-0 cursor-pointer"
+                role="button"
+                title="ContentGrid"
+                t-on-click.stop="onClickContentGrid"
+                t-if="state.file.contentgrid"
+            >
+                <i class="fcg fcg-contentgrid" role="img" />
+            </div>
+        </xpath>
+    </t>
+</templates>

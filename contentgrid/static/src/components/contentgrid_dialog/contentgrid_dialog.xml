@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+  <t t-name="contentgrid.ContentGridDialog">
+        <Dialog size="'md'" title="title" modalRef="modalRef">
+            <div class="row p-3" t-if="multiRecords">
+                <div
+                    t-foreach="props.data"
+                    t-key="item.id"
+                    t-as="item"
+                    class="col btn"
+                    t-att-class="item.id == state.currentTab ? 'btn-primary' : 'btn-secondary'"
+                    t-on-click.stop.prevent="() => this.onClickContentGridTab(item)"
+                >
+                    <span t-esc="item.contentgrid_configuration" />
+                </div>
+            </div>
+            <div>
+                <div
+                    class="row"
+                    t-foreach="currentRecord.data"
+                    t-key="item_index"
+                    t-as="item"
+                    t-if="!!currentRecord.data[item] and item !== '_links'"
+                >
+                    <div class="col-3">
+                        <strong t-esc="item" />
+                    </div>
+                    <div class="col-9">
+                        <span
+                            t-esc="currentRecord.data[item]"
+                            t-if="currentRecord.data[item]"
+                        />
+                    </div>
+                </div>
+            </div>
+            <t t-set-slot="footer">
+                <button
+                    class="btn btn-info"
+                    t-on-click.stop.prevent="onClickContentGridRecord"
+                >
+                    <i class="fcg fcg-contentgrid" />
+                    Open in Contentgrid
+                </button>
+            </t>
+        </Dialog>
+    </t>
+
+</templates>

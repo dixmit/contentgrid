@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <menuitem
+        id="contentgrid_menu_root"
+        name="Contentgrid"
+        parent="base.menu_custom"
+        sequence="22"
+    />
+</odoo>

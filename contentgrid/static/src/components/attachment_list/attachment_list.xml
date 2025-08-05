@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <t t-inherit="mail.AttachmentList" t-inherit-mode="extension">
+        <xpath expr="//small[hasclass('text-uppercase')]" position="replace">
+            <div>
+                <img
+                    class="fcg fcg-contentgrid btn py-0 px-1"
+                    t-on-click.stop.prevent="() => this.onClickAttachmentContentGrid(attachment)"
+                    t-if="attachment.contentgrid"
+                />
+                <t>$0</t>
+            </div>
+        </xpath>
+    </t>
+</templates>
