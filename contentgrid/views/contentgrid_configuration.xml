@@ -18,6 +18,7 @@
                         <field name="name" />
                         <field name="model_id" />
                         <field name="connection_id" />
+                        <field name="allow_manual_send" />
                         <field name="res_model" invisible="1" />
                         <field name="active" invisible="1" />
                     </group>

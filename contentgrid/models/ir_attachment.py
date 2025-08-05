@@ -17,7 +17,7 @@ class IrAttachment(models.Model):
         ondelete="cascade",
     )
 
-    def _push_to_contentgrid(self):
+    def _push_to_contentgrid(self, manual_send=False):
         self.ensure_one()
         if self.contentgrid_ids:
             return
@@ -26,12 +26,13 @@ class IrAttachment(models.Model):
         record = self.env[self.res_model].browse(self.res_id).exists()
         if not record:
             return
-        for contentgrid_config in self.env["contentgrid.configuration"].search(
-            [
-                ("model_id.model", "=", self.res_model),
-                ("active", "=", True),
-            ],
-        ):
+        domain = [
+            ("model_id.model", "=", self.res_model),
+            ("active", "=", True),
+        ]
+        if manual_send:
+            domain.append(("allow_manual_send", "=", True))
+        for contentgrid_config in self.env["contentgrid.configuration"].search(domain):
             contentgrid_config._push_to_contentgrid(self, record)
 
     @api.model_create_multi
@@ -51,14 +52,6 @@ class IrAttachment(models.Model):
 
     def get_contentgrid_data(self):
         self.ensure_one()
-        result = []
-        for contentgrid_record in self.contentgrid_ids:
-            record_data = {
-                "res_model": contentgrid_record.res_model,
-                "res_id": contentgrid_record.res_id,
-                "name": contentgrid_record.name,
-            }
-            result.append(record_data)
         return [
             record._get_contentgrid_data() for record in self.contentgrid_ids.sudo()
         ]

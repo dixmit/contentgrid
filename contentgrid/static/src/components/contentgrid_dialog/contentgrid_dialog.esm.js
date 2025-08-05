@@ -4,7 +4,6 @@ import {Dialog} from "@web/core/dialog/dialog";
 export class ContentGridDialog extends Component {
     setup() {
         super.setup();
-        console.log(this.props.data);
         this.state = useState({
             currentTab: this.props.data[0].id,
         });
@@ -30,4 +29,5 @@ ContentGridDialog.components = {Dialog};
 ContentGridDialog.template = "contentgrid.ContentGridDialog";
 ContentGridDialog.props = {
     data: {type: Object},
+    close: Function,
 };
