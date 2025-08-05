@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2025 Dixmit
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record model="ir.ui.view" id="contentgrid_endpoint_form_view">
+        <field name="model">contentgrid.endpoint</field>
+        <field name="arch" type="xml">
+            <form>
+                <header />
+                <sheet>
+                    <group>
+                        <field name="name" />
+                        <field name="connection_id" />
+                        <field name="url" widget="CopyClipboardChar" />
+                        <field name="kind" />
+                    </group>
+                    <notebook>
+                        <page string="Attachment" invisible="kind != 'attachment'">
+                            <group>
+                                <field name="attachment_model_field" />
+                                <field name="attachment_res_id_field" />
+                                <field name="attachment_data_field" />
+                                <field name="attachment_filename_field" />
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="contentgrid_endpoint_search_view">
+        <field name="model">contentgrid.endpoint</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+            </search>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="contentgrid_endpoint_tree_view">
+        <field name="model">contentgrid.endpoint</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+            </list>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="contentgrid_endpoint_act_window">
+        <field name="name">Contentgrid Endpoint</field>
+        <!-- TODO -->
+        <field name="res_model">contentgrid.endpoint</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[("connection_id", "=", active_id)]</field>
+        <field name="context">{'default_connection_id': active_id}</field>
+    </record>
+</odoo>

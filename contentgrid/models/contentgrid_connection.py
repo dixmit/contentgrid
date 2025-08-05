@@ -22,6 +22,17 @@ class ContentgridConnection(models.Model):
         required=True,
     )
     app_url = fields.Char()
+    key = fields.Char(required=True)
+    public_key = fields.Json()
+
+    def refresh_public_key(self):
+        self.ensure_one()
+        response = requests.get(
+            f"{self.base_url}/.well-known/jwks.json",
+            timeout=self._timeout,
+        )
+        response.raise_for_status()
+        self.public_key = response.json().get("keys", [])
 
     def _get_token(self):
         self.ensure_one()
@@ -35,3 +46,17 @@ class ContentgridConnection(models.Model):
         )
         response.raise_for_status()
         return response.json()["access_token"]
+
+    def _handle_incoming(self, endpoint, data, signature):
+        self.ensure_one()
+        endpoint_record = (
+            self.env["contentgrid.endpoint"]
+            .sudo()
+            .search([("connection_id", "=", self.id), ("name", "=", endpoint)], limit=1)
+        )
+        if not endpoint_record:
+            return ""
+        return getattr(
+            endpoint_record,
+            f"_handle_incoming_{endpoint_record.kind}_{data['trigger']}",
+        )(data, signature)

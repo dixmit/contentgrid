@@ -8,8 +8,25 @@
             <form>
                 <header />
                 <sheet>
+                    <div name="button_box" class="oe_button_box">
+                        <button
+                            name="refresh_public_key"
+                            type="object"
+                            string="Refresh Public Key"
+                            class="oe_highlight"
+                            icon="fa-certificate"
+                        />
+                        <button
+                            name="%(contentgrid.contentgrid_endpoint_act_window)s"
+                            type="action"
+                            string="Endpoints"
+                            class="oe_link"
+                            icon="fa-plug"
+                        />
+                    </div>
                     <group>
                         <field name="name" />
+                        <field name="key" />
                         <field name="openid_url" />
                         <field name="openid_client_id" />
                         <field name="openid_client_secret" password="True" />

@@ -12,6 +12,7 @@
     "data": [
         "security/ir.model.access.csv",
         "views/menu.xml",
+        "views/contentgrid_endpoint.xml",
         "views/contentgrid_connection.xml",
         "views/contentgrid_configuration.xml",
     ],

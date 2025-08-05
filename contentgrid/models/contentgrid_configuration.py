@@ -47,6 +47,9 @@ class ContentgridConfiguration(models.Model):
         comodel_name="contentgrid.connection", required=True
     )
     configuration_data = fields.Text(required=True)
+    allow_manual_send = fields.Boolean(
+        default=False,
+    )
 
     @api.constrains("configuration_data")
     def _check_configuration_data(self):

@@ -137,8 +137,21 @@ of it in contentgrid and a link to the app:
 
 |ContentGrid Popup|
 
+Also, related records will show the same icon in the thread menu and
+will allow us to check the data sent to ContentGrid.
+
+|ContentGrid Thread|
+
+In case we want to force the send, we can do it manually by using the
+*Allow manual send* field on the configuration. This will show a button
+that sends the data to content grid (only attachments not sent)
+
+|image1|
+
 .. |ContentGrid Attachment| image:: https://raw.githubusercontent.com/dixmit/contentgrid/18.0/contentgrid/static/img/contentgrid_attachment.png
 .. |ContentGrid Popup| image:: https://raw.githubusercontent.com/dixmit/contentgrid/18.0/contentgrid/static/img/contentgrid_popup.png
+.. |ContentGrid Thread| image:: https://raw.githubusercontent.com/dixmit/contentgrid/18.0/contentgrid/static/img/contentgrid_thread.png
+.. |image1| image:: https://raw.githubusercontent.com/dixmit/contentgrid/18.0/contentgrid/static/img/contentgrid_thread_force.png
 
 Bug Tracker
 ===========

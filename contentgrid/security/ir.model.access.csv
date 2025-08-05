@@ -4,3 +4,5 @@ manage_contentgrid_configuration,manage.contentgrid.configuration,model_contentg
 access_contentgrid_connection,access.contentgrid.connection,model_contentgrid_connection,base.group_user,1,0,0,0
 manage_contentgrid_connection,manage.contentgrid.connection,model_contentgrid_connection,base.group_system,1,1,1,1
 manage_contentgrid_record,manage.contentgrid.record,model_contentgrid_record,base.group_system,1,1,1,0
+access_contentgrid_endpoint,access.contentgrid.endpoint,model_contentgrid_endpoint,base.group_user,1,0,0,0
+manage_contentgrid_endpoint,manage.contentgrid.endpoint,model_contentgrid_endpoint,base.group_system,1,1,1,1
