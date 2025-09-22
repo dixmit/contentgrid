@@ -30,8 +30,6 @@
                         <field name="openid_url" />
                         <field name="openid_client_id" />
                         <field name="openid_client_secret" password="True" />
-                        <field name="username" />
-                        <field name="password" password="True" />
                         <field name="base_url" />
                         <field name="app_url" />
                     </group>

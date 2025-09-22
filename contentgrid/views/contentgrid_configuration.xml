@@ -19,6 +19,15 @@
                         <field name="model_id" />
                         <field name="connection_id" />
                         <field name="allow_manual_send" />
+                        <field name="use_contentgrid_for_storage" />
+                        <field
+                            name="contentgrid_storage_model"
+                            invisible="not use_contentgrid_for_storage"
+                        />
+                        <field
+                            name="contentgrid_storage_field"
+                            invisible="not use_contentgrid_for_storage"
+                        />
                         <field name="res_model" invisible="1" />
                         <field name="active" invisible="1" />
                     </group>

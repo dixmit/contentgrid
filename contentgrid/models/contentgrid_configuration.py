@@ -50,6 +50,11 @@ class ContentgridConfiguration(models.Model):
     allow_manual_send = fields.Boolean(
         default=False,
     )
+    use_contentgrid_for_storage = fields.Boolean(
+        help="Use ContentGrid for storage data"
+    )
+    contentgrid_storage_model = fields.Char()
+    contentgrid_storage_field = fields.Char()
 
     @api.constrains("configuration_data")
     def _check_configuration_data(self):
@@ -181,3 +186,20 @@ class ContentgridConfiguration(models.Model):
                             timeout=self.connection_id._timeout,
                         )
                         response.raise_for_status()
+        storage_model = self.contentgrid_storage_model
+        storage_field = self.contentgrid_storage_field
+        if (
+            self.use_contentgrid_for_storage
+            and storage_model
+            and storage_field
+            and not attachment.contentgrid_connection_id
+        ):
+            url = f"{storage_model}s/{processed[storage_model][0]}/{storage_field}"
+            attachment.write(
+                {
+                    "contentgrid_connection_id": self.connection_id.id,
+                    "contentgrid_url": url,
+                    "raw": False,
+                    "mimetype": attachment.mimetype,
+                }
+            )

@@ -15,8 +15,6 @@ class ContentgridConnection(models.Model):
     openid_url = fields.Char(groups="base.group_system", required=True)
     openid_client_id = fields.Char(groups="base.group_system", required=True)
     openid_client_secret = fields.Char(groups="base.group_system", required=True)
-    username = fields.Char(groups="base.group_system", required=True)
-    password = fields.Char(groups="base.group_system", required=True)
     base_url = fields.Char(
         help="Base URL of the Contentgrid instance without models",
         required=True,

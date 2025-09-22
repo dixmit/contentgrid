@@ -1,6 +1,8 @@
 # Copyright 2025 Dixmit
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
+import requests
+
 from odoo import api, fields, models
 
 from odoo.addons.mail.tools.discuss import Store
@@ -16,6 +18,8 @@ class IrAttachment(models.Model):
         string="Content Grid Data",
         ondelete="cascade",
     )
+    contentgrid_connection_id = fields.Many2one("contentgrid.connection")
+    contentgrid_url = fields.Char()
 
     def _push_to_contentgrid(self, manual_send=False):
         self.ensure_one()
@@ -62,3 +66,29 @@ class IrAttachment(models.Model):
         return [
             record._get_contentgrid_data() for record in self.contentgrid_ids.sudo()
         ]
+
+    @api.depends("contentgrid_connection_id", "contentgrid_url")
+    def _compute_raw(self):
+        for attachment in self.filtered(lambda r: r.contentgrid_connection_id):
+            access_token = attachment.contentgrid_connection_id._get_token()
+            headers = {
+                "Authorization": f"Bearer {access_token}",
+            }
+            data_request = requests.get(
+                f"{attachment.contentgrid_connection_id.base_url}/{attachment.contentgrid_url}",
+                headers=headers,
+                timeout=attachment.contentgrid_connection_id._timeout,
+            )
+            try:
+                data_request.raise_for_status()
+                attachment.raw = data_request.content
+            except requests.HTTPError:
+                attachment.raw = b""
+        return super(
+            IrAttachment, self.filtered(lambda r: not r.contentgrid_connection_id)
+        )._compute_raw()
+
+    def _set_attachment_data(self, asbytes):
+        if self.contentgrid_connection_id:
+            return
+        return super()._set_attachment_data(asbytes)
