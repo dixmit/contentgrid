@@ -42,6 +42,13 @@ class IrAttachment(models.Model):
             attachment._push_to_contentgrid()
         return attachments
 
+    def write(self, vals):
+        res = super().write(vals)
+        if "model" in vals or "res_id" in vals:
+            for attachment in self:
+                attachment._push_to_contentgrid()
+        return res
+
     def _to_store(self, store: Store, **kwargs):
         result = super()._to_store(store, **kwargs)
         for attachment in self:
