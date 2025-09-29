@@ -20,6 +20,14 @@ class ContentgridRecord(models.Model):
         ondelete="cascade",
     )
 
+    _sql_constraints = [
+        (
+            "contentgrid_record_uniq",
+            "unique(name, element, contentgrid_connection_id)",
+            "The record already exists!",
+        ),
+    ]
+
     def _get_contentgrid_data(self):
         self.ensure_one()
         access_token = self.contentgrid_connection_id._get_token()

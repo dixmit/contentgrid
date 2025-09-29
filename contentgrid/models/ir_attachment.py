@@ -4,6 +4,7 @@
 import requests
 
 from odoo import api, fields, models
+from odoo.http import Stream
 
 from odoo.addons.mail.tools.discuss import Store
 
@@ -18,11 +19,13 @@ class IrAttachment(models.Model):
         string="Content Grid Data",
         ondelete="cascade",
     )
-    contentgrid_connection_id = fields.Many2one("contentgrid.connection")
-    contentgrid_url = fields.Char()
+    contentgrid_connection_id = fields.Many2one("contentgrid.connection", copy=False)
+    contentgrid_url = fields.Char(copy=False)
 
     def _push_to_contentgrid(self, manual_send=False):
         self.ensure_one()
+        if self.env.context.get("contentgrid_no_push"):
+            return
         if self.contentgrid_ids:
             return
         if not self.res_model or not self.res_id:
@@ -66,6 +69,21 @@ class IrAttachment(models.Model):
         return [
             record._get_contentgrid_data() for record in self.contentgrid_ids.sudo()
         ]
+
+    def _to_http_stream(self):
+        if self.contentgrid_connection_id and self.contentgrid_url:
+            stream = Stream(
+                mimetype=self.mimetype,
+                download_name=self.name,
+                etag=self.checksum,
+                public=self.public,
+            )
+            stream.type = "data"
+            stream.data = self.raw
+            stream.last_modified = self.write_date
+            stream.size = len(stream.data)
+            return stream
+        return super()._to_http_stream()
 
     @api.depends("contentgrid_connection_id", "contentgrid_url")
     def _compute_raw(self):

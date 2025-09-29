@@ -53,6 +53,8 @@ class ContentgridEndpoint(models.Model):
         )
         if related_record:
             # Nothing to do, the record already exists
+            # we update the write date just in case
+            related_record.write({})
             return ""
         record = self.env[data["new"][self.attachment_model_field]]
         if data["new"].get(self.attachment_res_id_field):
@@ -72,26 +74,33 @@ class ContentgridEndpoint(models.Model):
             record = record.create(
                 self._get_new_record_values(record._name, data["new"])
             )
-        attachment = self.env["ir.attachment"].create(
-            {
-                "name": data["new"].get(self.attachment_filename_field, "attachment"),
-                "datas": base64.b64encode(attachment_data).decode("utf-8"),
-                "res_model": record._name,
-                "res_id": record.id,
-                "contentgrid_ids": [
-                    (
-                        0,
-                        0,
-                        {
-                            "contentgrid_connection_id": self.connection_id.id,
-                            "res_model": "ir.attachment",
-                            "name": data["new"].get("id"),
-                            "element": self.content_type or self.name,
-                        },
-                    )
-                ],
-            }
+        attachment = (
+            self.env["ir.attachment"]
+            .with_context(contentgrid_no_push=True)
+            .create(
+                {
+                    "name": data["new"].get(
+                        self.attachment_filename_field, "attachment"
+                    ),
+                    "datas": base64.b64encode(attachment_data).decode("utf-8"),
+                    "res_model": record._name,
+                    "res_id": record.id,
+                    "contentgrid_ids": [
+                        (
+                            0,
+                            0,
+                            {
+                                "contentgrid_connection_id": self.connection_id.id,
+                                "res_model": "ir.attachment",
+                                "name": data["new"].get("id"),
+                                "element": self.content_type or self.name,
+                            },
+                        )
+                    ],
+                }
+            )
         )
+        attachment.invalidate_recordset()
         domain = [
             ("model_id.model", "=", record._name),
             ("active", "=", True),

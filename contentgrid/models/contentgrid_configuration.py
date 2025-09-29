@@ -96,8 +96,6 @@ class ContentgridConfiguration(models.Model):
                     )
                     if parsed_value:
                         record_data[field] = parsed_value
-                record_uuid = False
-                new_record = True
                 record_uuid = (
                     self.env["contentgrid.record"]
                     .sudo()
@@ -112,13 +110,11 @@ class ContentgridConfiguration(models.Model):
                     )
                     .name
                 )
-                if record_uuid:
-                    new_record = False
                 headers = {
                     "Authorization": f"Bearer {access_token}",
                     "Content-Type": "application/json",
                 }
-                if new_record:
+                if not record_uuid:
                     response = requests.post(
                         f"{url}/{element_name}s",
                         headers=headers,
@@ -199,7 +195,5 @@ class ContentgridConfiguration(models.Model):
                 {
                     "contentgrid_connection_id": self.connection_id.id,
                     "contentgrid_url": url,
-                    "raw": False,
-                    "mimetype": attachment.mimetype,
                 }
             )

@@ -13,6 +13,7 @@
                         <field name="connection_id" />
                         <field name="url" widget="CopyClipboardChar" />
                         <field name="kind" />
+                        <field name="content_type" />
                     </group>
                     <notebook>
                         <page string="Attachment" invisible="kind != 'attachment'">
