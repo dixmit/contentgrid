@@ -9,6 +9,7 @@
     "author": "Dixmit",
     "website": "https://github.com/dixmit/contentgrid",
     "depends": ["mail"],
+    "external_dependencies": {"python": ["pyjwt", "PyYAML"]},
     "data": [
         "security/ir.model.access.csv",
         "views/menu.xml",
