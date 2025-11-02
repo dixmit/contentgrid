@@ -54,7 +54,24 @@ class ContentgridEndpoint(models.Model):
         if related_record:
             # Nothing to do, the record already exists
             # we update the write date just in case
-            related_record.write({})
+            attachment = self.env[related_record.res_model].browse(
+                related_record.res_id
+            )
+            if attachment and attachment._name == "ir.attachment":
+                access_token = self.connection_id._get_token()
+                headers = {
+                    "Authorization": f"Bearer {access_token}",
+                }
+                data_request = requests.get(
+                    f"{data['new']['_links']['self']['href']}/{self.attachment_data_field}",
+                    headers=headers,
+                    timeout=10,
+                )
+                data_request.raise_for_status()
+                attachment_data = data_request.content
+                # This is the only way to update the checksum and file size
+                checksum = attachment._compute_checksum(attachment_data)
+                attachment._write({"checksum": checksum})
             return ""
         record = self.env[data["new"][self.attachment_model_field]]
         if data["new"].get(self.attachment_res_id_field):
