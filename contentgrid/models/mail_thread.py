@@ -48,4 +48,5 @@ class MailThread(models.AbstractModel):
 
     def send_contentgrid_data(self):
         self.ensure_one()
-        self.attachment_ids._push_to_contentgrid(manual_send=True)
+        for attachment in self.attachment_ids:
+            attachment._push_to_contentgrid(manual_send=True)
