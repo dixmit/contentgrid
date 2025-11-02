@@ -16,8 +16,6 @@ class IrAttachment(models.Model):
         "contentgrid.record",
         "res_id",
         domain=[("res_model", "=", "ir.attachment")],
-        string="Content Grid Data",
-        ondelete="cascade",
     )
     contentgrid_connection_id = fields.Many2one("contentgrid.connection", copy=False)
     contentgrid_url = fields.Char(copy=False)
