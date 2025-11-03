@@ -4,7 +4,7 @@
         <xpath expr="//div[hasclass('o-mail-Followers')]" position="before">
             <button
                 t-if="state.thread and state.thread.contentgrid"
-                class="btn btn-link text-action"
+                class="o-mail-Chatter-showContentGrid btn btn-link text-action"
                 t-on-click="onClickContentGrid"
             >
                 <i

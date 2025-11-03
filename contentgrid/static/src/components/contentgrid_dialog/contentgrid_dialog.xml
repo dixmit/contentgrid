@@ -8,7 +8,7 @@
                     t-foreach="props.data"
                     t-key="item.id"
                     t-as="item"
-                    class="col btn"
+                    class="col btn o-ContentGridDialog-recordSelector"
                     t-att-class="item.id == state.currentTab ? 'btn-primary' : 'btn-secondary'"
                     t-on-click.stop.prevent="() => this.onClickContentGridTab(item)"
                 >
@@ -36,7 +36,7 @@
             </div>
             <t t-set-slot="footer">
                 <button
-                    class="btn btn-info"
+                    class="btn btn-info o-ContentGridDialog-openInContentGrid"
                     t-on-click.stop.prevent="onClickContentGridRecord"
                 >
                     <i class="fcg fcg-contentgrid" />

@@ -23,6 +23,10 @@
             "contentgrid/static/src/**/*.xml",
             "contentgrid/static/src/**/*.css",
         ],
+        "web.assets_unit_tests": [
+            "contentgrid/static/tests/**/*.esm.js",
+            "contentgrid/static/tests/**/*.test.js",
+        ],
     },
     "demo": [],
 }

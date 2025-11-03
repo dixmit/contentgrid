@@ -7,7 +7,7 @@ import logging
 import jwt
 from jwt.api_jwk import PyJWKSet
 
-from odoo.http import Controller, request, route
+from odoo.http import Controller, Response, request, route
 
 from odoo.addons.mail.models.discuss.mail_guest import add_guest_to_context
 
@@ -33,7 +33,7 @@ class GatewayController(Controller):
         token = request.httprequest.headers.get("ContentGrid-Signature", "")
         if not contentgrid_id or not token:
             _logger.warning("Missing ContentGrid headers")
-            return ""
+            return Response("", status=403)
         connection = (
             request.env["contentgrid.connection"]
             .sudo()
@@ -43,7 +43,7 @@ class GatewayController(Controller):
             _logger.warning(
                 "No connection found for ContentGrid-Application-Id %s", contentgrid_id
             )
-            return ""
+            return Response("", status=403)
         if not connection.public_key:
             _logger.info("Refreshing public key for connection %s", connection.name)
             connection.refresh_public_key()
@@ -80,4 +80,4 @@ class GatewayController(Controller):
             _logger.warning("Invalid signature for token with kid %s", kid)
         except Exception as e:
             _logger.error("Error decoding token with kid %s: %s", kid, str(e))
-        return ""
+        return Response("", status=403)

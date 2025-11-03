@@ -1,0 +1,51 @@
+import {getKwArgs, makeKwArgs} from "@web/../tests/web_test_helpers";
+import {mailModels} from "@mail/../tests/mail_test_helpers";
+
+export class MailThread extends mailModels.MailThread {
+    _thread_to_store() {
+        const kwargs = getKwArgs(arguments, "ids", "store", "fields", "request_list");
+        const store = kwargs.store;
+        var result = super._thread_to_store(...arguments);
+        const id = kwargs.ids[0];
+        store.add(
+            this.env[this._name].browse(id),
+            {
+                contentgrid: Boolean(
+                    this.env["contentgrid.record"].search([
+                        ["res_model", "=", this._name],
+                        ["res_id", "=", id],
+                    ]).length
+                ),
+                sendContentGrid: Boolean(
+                    this.env["contentgrid.configuration"].search([
+                        ["is_active", "=", true],
+                        ["allow_manual_send", "=", true],
+                        ["model_id.model", "=", this._name],
+                    ]).length
+                ),
+            },
+            makeKwArgs({as_thread: true})
+        );
+        return result;
+    }
+
+    get_contentgrid_data(ids) {
+        const records = this.env["contentgrid.record"].search([
+            ["res_model", "=", this._name],
+            ["res_id", "in", ids],
+        ]);
+        const result = [];
+        for (const recordId of records) {
+            const record = this.env["contentgrid.record"].browse(recordId)[0];
+            result.push({
+                id: record.id,
+                name: record.name,
+                element: record.element,
+                contentgrid_connection: record.contentgrid_connection_id,
+                data: record.data,
+                url: "/contentgrid/record/" + record.id,
+            });
+        }
+        return result;
+    }
+}
