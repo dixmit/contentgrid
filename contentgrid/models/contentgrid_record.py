@@ -34,6 +34,7 @@ class ContentgridRecord(models.Model):
         headers = {
             "Authorization": f"Bearer {access_token}",
             "Content-Type": "application/json",
+            "Accept": "application/json",
         }
         data = requests.get(
             f"{self.contentgrid_connection_id.base_url}/{self.element}s/{self.name}",

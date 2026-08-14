@@ -24,7 +24,8 @@ def parse_date(origin_date):
     if isinstance(final_date, datetime):
         if not final_date.tzinfo:
             final_date = final_date.replace(tzinfo=UTC)
-        return final_date.isoformat()
+        final_date = final_date.astimezone(UTC)
+        return final_date.replace(tzinfo=None).isoformat()
     return False
 
 
@@ -71,126 +72,95 @@ class ContentgridConfiguration(models.Model):
         self.ensure_one()
         if not record.filtered_domain(safe_eval(self.domain)):
             return
+        element_name = "archiveDocument"
         config = yaml.safe_load(self.configuration_data)
         processed = defaultdict(lambda: [])
         access_token = self.connection_id._get_token()
         url = self.sudo().connection_id.base_url
-        for element_name, element_config in config.items():
-            if not isinstance(element_config, dict):
-                raise ValidationError(
-                    _("Configuration data must be a list of dictionaries")
-                )
-            to_process_records = attachment
-            if "compute" in element_config:
-                to_process_records = safe_eval(
-                    element_config["compute"],
-                    {"attachment": attachment, "record": record},
-                )
-            if not isinstance(to_process_records, models.Model):
-                raise ValidationError(_("Compute function must return a recordset"))
-            for to_process_record in to_process_records:
-                record_data = {}
-                for field, value in element_config.get("data", {}).items():
-                    parsed_value = safe_eval(
-                        value, {"record": to_process_record, "parse_date": parse_date}
-                    )
-                    if parsed_value:
-                        record_data[field] = parsed_value
-                record_uuid = (
-                    self.env["contentgrid.record"]
-                    .sudo()
-                    .search(
-                        [
-                            ("res_model", "=", to_process_record._name),
-                            ("res_id", "=", to_process_record.id),
-                            ("element", "=", element_name),
-                            ("contentgrid_connection_id", "=", self.connection_id.id),
-                        ],
-                        limit=1,
-                    )
-                    .name
-                )
-                headers = {
-                    "Authorization": f"Bearer {access_token}",
-                    "Content-Type": "application/json",
+        partner = record._mail_get_partners()[record.id][0:]
+        niss = None
+        if "niss" in config:
+            niss = partner[config["niss"]]
+        contract_number = None
+        if record._name == "sale.order" and "contract_number" in config:
+            contract_number = record[config["contract_number"]]
+        record_data = {
+            "documentType": "ADMIN",
+            "source": "ODOO",
+            "subtype": "AUTRE",
+            "resId": record.id,
+            "resModel": record._name,
+            "exId": (partner and partner.id) or 0,
+            "niss": niss,
+            "contractNumber": contract_number,
+            "documentDate": parse_date(attachment.create_date.date()),
+            "oid": attachment.id,
+        }
+        record_uuid = (
+            self.env["contentgrid.record"]
+            .sudo()
+            .search(
+                [
+                    ("res_model", "=", attachment._name),
+                    ("res_id", "=", attachment.id),
+                    ("element", "=", element_name),
+                    ("contentgrid_connection_id", "=", self.connection_id.id),
+                ],
+                limit=1,
+            )
+            .name
+        )
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json",
+        }
+        if not record_uuid:
+            response = requests.post(
+                f"{url}/{element_name}s",
+                headers=headers,
+                data=json.dumps(record_data),
+                timeout=self.connection_id._timeout,
+            )
+            response.raise_for_status()
+            record_uuid = response.json()["id"]
+            self.env["contentgrid.record"].sudo().create(
+                {
+                    "res_model": attachment._name,
+                    "res_id": attachment.id,
+                    "element": element_name,
+                    "name": record_uuid,
+                    "contentgrid_connection_id": self.connection_id.id,
                 }
-                if not record_uuid:
-                    response = requests.post(
-                        f"{url}/{element_name}s",
-                        headers=headers,
-                        data=json.dumps(record_data),
-                        timeout=self.connection_id._timeout,
-                    )
-                    response.raise_for_status()
-                    record_uuid = response.json()["id"]
-                    self.env["contentgrid.record"].sudo().create(
-                        {
-                            "res_model": to_process_record._name,
-                            "res_id": to_process_record.id,
-                            "element": element_name,
-                            "name": record_uuid,
-                            "contentgrid_connection_id": self.connection_id.id,
-                        }
-                    )
-                else:
-                    response = requests.put(
-                        f"{url}/{element_name}s/{record_uuid}",
-                        headers=headers,
-                        data=json.dumps(record_data),
-                        timeout=self.connection_id._timeout,
-                    )
-                    response.raise_for_status()
-                for binary_key, binary_value in element_config.get(
-                    "binary", {}
-                ).items():
-                    binary_headers = {
-                        "Authorization": f"Bearer {access_token}",
-                        "Content-Type": safe_eval(
-                            binary_value["mimetype"], {"record": to_process_record}
-                        ),
-                    }
-                    if binary_value.get("name"):
-                        filename = safe_eval(
-                            binary_value["name"], {"record": to_process_record}
-                        )
-                        binary_headers["Content-Disposition"] = (
-                            f'attachment; filename="{filename}"'
-                        )
-                    requests.put(
-                        f"{url}/{element_name}s/{record_uuid}/{binary_key}",
-                        headers=binary_headers,
-                        data=base64.b64decode(
-                            safe_eval(
-                                binary_value["compute"], {"record": to_process_record}
-                            )
-                        ),
-                        timeout=self.connection_id._timeout,
-                    ).raise_for_status()
-                processed[element_name].append(record_uuid)
-        for element_name, element_config in config.items():
-            for link in element_config.get("link", []):
-                for origin_record in processed[element_name]:
-                    for target_record in processed[link]:
-                        headers = {
-                            "Authorization": f"Bearer {access_token}",
-                            "Content-Type": "text/uri-list",
-                        }
-                        response = requests.post(
-                            f"{url}/{element_name}s/{origin_record}/{link}",
-                            headers=headers,
-                            data=f"{link}s/{target_record}",
-                            timeout=self.connection_id._timeout,
-                        )
-                        response.raise_for_status()
+            )
+        else:
+            response = requests.put(
+                f"{url}/{element_name}s/{record_uuid}",
+                headers=headers,
+                data=json.dumps(record_data),
+                timeout=self.connection_id._timeout,
+            )
+            response.raise_for_status()
+        binary_headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": attachment.mimetype or "application/octet-stream",
+        }
+        binary_headers["Content-Disposition"] = (
+            f'attachment; filename="{attachment.name}"'
+        )
+        requests.put(
+            f"{url}/{element_name}s/{record_uuid}",
+            headers=binary_headers,
+            data=base64.b64decode(attachment.datas),
+            timeout=self.connection_id._timeout,
+        ).raise_for_status()
+        processed[element_name].append(record_uuid)
         storage_model = self.contentgrid_storage_model
-        storage_field = self.contentgrid_storage_field
         if (
             self.use_contentgrid_for_storage
             and storage_model
-            and storage_field
             and not attachment.contentgrid_connection_id
         ):
-            url = f"{storage_model}s/{processed[storage_model][0]}/{storage_field}"
+            url = f"{storage_model}s/{processed[storage_model][0]}"
             attachment.write(
                 {
                     "contentgrid_connection_id": self.connection_id.id,
