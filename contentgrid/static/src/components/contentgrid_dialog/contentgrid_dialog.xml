@@ -35,13 +35,13 @@
                 </div>
             </div>
             <t t-set-slot="footer">
-                <button
+                <!--<button
                     class="btn btn-info o-ContentGridDialog-openInContentGrid"
                     t-on-click.stop.prevent="onClickContentGridRecord"
                 >
                     <i class="fcg fcg-contentgrid" />
                     Open in Contentgrid
-                </button>
+                </button>-->
             </t>
         </Dialog>
     </t>
